@@ -1,9 +1,7 @@
 services:
   - type: web
     name: fdtracker
-    env: java
-    buildCommand: mvn clean package -DskipTests
-    startCommand: java -jar target/fdtracker-1.0.0.jar
+    runtime: docker
     plan: free
     envVars:
       - key: DATABASE_URL
