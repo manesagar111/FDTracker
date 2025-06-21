@@ -4,10 +4,26 @@ services:
     runtime: docker
     plan: free
     envVars:
-      - key: DATABASE_URL
+      - key: DB_HOST
         fromDatabase:
           name: fdtracker-db
-          property: connectionString
+          property: host
+      - key: DB_PORT
+        fromDatabase:
+          name: fdtracker-db
+          property: port
+      - key: DB_NAME
+        fromDatabase:
+          name: fdtracker-db
+          property: database
+      - key: DB_USER
+        fromDatabase:
+          name: fdtracker-db
+          property: user
+      - key: DB_PASSWORD
+        fromDatabase:
+          name: fdtracker-db
+          property: password
       - key: SPRING_PROFILES_ACTIVE
         value: prod
 
