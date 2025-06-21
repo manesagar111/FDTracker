@@ -4,9 +4,21 @@ import org.springframework.stereotype.Controller;
 import org.springframework.ui.Model;
 import org.springframework.web.bind.annotation.GetMapping;
 import org.springframework.web.bind.annotation.RequestParam;
+import org.springframework.web.bind.annotation.ResponseBody;
 
 @Controller
 public class LoginController {
+    
+    @GetMapping("/")
+    public String home() {
+        return "redirect:/login";
+    }
+    
+    @GetMapping("/test")
+    @ResponseBody
+    public String test() {
+        return "FD Tracker is running successfully!";
+    }
     
     @GetMapping("/login")
     public String login(@RequestParam(value = "error", required = false) String error,
