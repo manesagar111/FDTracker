@@ -32,6 +32,12 @@ public class LoginController {
         return "<h1>FD Tracker is running successfully!</h1><p><a href='/home'>Go to Home</a></p>";
     }
     
+    @GetMapping("/ping")
+    @ResponseBody
+    public String ping() {
+        return "pong";
+    }
+    
     @GetMapping("/login")
     public String login(@RequestParam(value = "error", required = false) String error,
                        @RequestParam(value = "logout", required = false) String logout,

@@ -2,6 +2,7 @@ package com.example.fdtracker.controller;
 
 import com.example.fdtracker.config.SchedulerConfig;
 import com.example.fdtracker.model.FixedDeposit;
+import com.example.fdtracker.service.EmailService;
 import com.example.fdtracker.service.FixedDepositService;
 import com.example.fdtracker.service.ReportService;
 import org.springframework.beans.factory.annotation.Autowired;
@@ -24,6 +25,9 @@ public class FdController {
     
     @Autowired
     private ReportService reportService;
+    
+    @Autowired
+    private EmailService emailService;
     
     @Autowired
     private SchedulerConfig schedulerConfig;
@@ -57,7 +61,8 @@ public class FdController {
         for(FixedDeposit fd : fixedDeposits) {
             html.append("<tr><td>").append(fd.getPersonName()).append("</td><td>").append(fd.getBankName()).append("</td><td>₹").append(fd.getInvestedAmount()).append("</td><td>₹").append(fd.getReturnAmount()).append("</td><td>").append(fd.getFromDate()).append("</td><td>").append(fd.getToDate()).append("</td><td>" +
                     "<a href='/edit/").append(fd.getId()).append("' class='btn btn-sm btn-warning me-1'>Edit</a>" +
-                    "<a href='/delete/").append(fd.getId()).append("' class='btn btn-sm btn-danger' onclick='return confirm(\"Are you sure?\")''>Delete</a></td></tr>");
+                    "<a href='/delete/").append(fd.getId()).append("' class='btn btn-sm btn-danger me-1' onclick='return confirm(\"Are you sure?\")''>Delete</a>" +
+                    "<a href='/send-mail/").append(fd.getId()).append("' class='btn btn-sm btn-info'>Send Mail</a></td></tr>");
         }
         html.append("</tbody></table></div></div></div></div></body></html>");
         return html.toString();
@@ -137,6 +142,20 @@ public class FdController {
         return "redirect:/records";
     }
     
+    @GetMapping("/send-mail/{id}")
+    public String sendMail(@PathVariable Long id) {
+        FixedDeposit fd = service.findById(id);
+        if (fd != null) {
+            try {
+                emailService.sendMaturityNotification(java.util.Arrays.asList(fd));
+                System.out.println("Email sent successfully for FD ID: " + id);
+            } catch (Exception e) {
+                System.out.println("Failed to send email for FD ID: " + id + ", Error: " + e.getMessage());
+            }
+        }
+        return "redirect:/records";
+    }
+    
     @PostMapping("/search")
     @ResponseBody
     public String search(@RequestParam(required = false) LocalDate searchFromDate,
@@ -159,13 +178,29 @@ public class FdController {
     @GetMapping("/report")
     @ResponseBody
     public String reportForm() {
-        return "<h1>Generate Report</h1><form action='/generate-report' method='post'>" +
-               "<p>From Date: <input name='fromDate' type='date'></p>" +
-               "<p>To Date: <input name='toDate' type='date'></p>" +
-               "<p>Status: <input name='status'></p>" +
-               "<p>Person Name: <input name='personName'></p>" +
-               "<p><button type='submit'>Generate PDF Report</button> <a href='/home'>Home</a></p>" +
-               "</form>";
+        return "<!DOCTYPE html><html><head><title>Generate Report</title>" +
+               "<link href='https://cdn.jsdelivr.net/npm/bootstrap@5.1.3/dist/css/bootstrap.min.css' rel='stylesheet'>" +
+               "</head><body class='bg-light'><div class='container mt-4'>" +
+               "<div class='row justify-content-center'><div class='col-md-8'>" +
+               "<div class='card shadow'><div class='card-header bg-info text-white'>" +
+               "<h3 class='mb-0'>Generate FD Report</h3></div><div class='card-body'>" +
+               "<form action='/generate-report' method='post'>" +
+               "<div class='row'><div class='col-md-6 mb-3'>" +
+               "<label class='form-label'>From Date</label>" +
+               "<input name='fromDate' type='date' class='form-control'></div>" +
+               "<div class='col-md-6 mb-3'><label class='form-label'>To Date</label>" +
+               "<input name='toDate' type='date' class='form-control'></div></div>" +
+               "<div class='row'><div class='col-md-6 mb-3'>" +
+               "<label class='form-label'>Status</label>" +
+               "<select name='status' class='form-control'><option value=''>All Status</option>" +
+               "<option value='NEW'>New</option><option value='ACTIVE'>Active</option>" +
+               "<option value='MATURED'>Matured</option><option value='RENEWED'>Renewed</option></select></div>" +
+               "<div class='col-md-6 mb-3'><label class='form-label'>Person Name</label>" +
+               "<input name='personName' class='form-control' placeholder='Enter person name'></div></div>" +
+               "<div class='d-grid gap-2 d-md-flex justify-content-md-end'>" +
+               "<button type='submit' class='btn btn-info me-2'><i class='fas fa-file-pdf'></i> Generate PDF Report</button>" +
+               "<a href='/home' class='btn btn-secondary'>Back to Home</a></div>" +
+               "</form></div></div></div></div></div></body></html>";
     }
     
     @PostMapping("/generate-report")
