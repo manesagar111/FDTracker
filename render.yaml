@@ -8,6 +8,10 @@ services:
         fromDatabase:
           name: fdtracker-db
           property: connectionString
+      - key: JDBC_DATABASE_URL
+        fromDatabase:
+          name: fdtracker-db
+          property: connectionString
       - key: SPRING_PROFILES_ACTIVE
         value: prod
 
