@@ -9,16 +9,16 @@ import org.springframework.web.bind.annotation.ResponseBody;
 @Controller
 public class LoginController {
     
+    @GetMapping("/home")
+    @ResponseBody
+    public String home() {
+        return "<h1>FD Tracker</h1><p><a href='/records'>View Records</a> | <a href='/add'>Add FD</a> | <a href='/report'>Generate Report</a></p>";
+    }
+    
     @GetMapping("/test")
     @ResponseBody
     public String test() {
-        return "<h1>FD Tracker is running successfully!</h1><p><a href='/login'>Go to Login</a></p>";
-    }
-    
-    @GetMapping("/simple-login")
-    @ResponseBody
-    public String simpleLogin() {
-        return "<h2>Simple Login Test</h2><form action='/login' method='post'><input name='username' placeholder='Username'><input name='password' type='password' placeholder='Password'><button type='submit'>Login</button></form>";
+        return "<h1>FD Tracker is running successfully!</h1><p><a href='/home'>Go to Home</a></p>";
     }
     
     @GetMapping("/login")
