@@ -12,7 +12,13 @@ public class LoginController {
     @GetMapping("/test")
     @ResponseBody
     public String test() {
-        return "FD Tracker is running successfully!";
+        return "<h1>FD Tracker is running successfully!</h1><p><a href='/login'>Go to Login</a></p>";
+    }
+    
+    @GetMapping("/simple-login")
+    @ResponseBody
+    public String simpleLogin() {
+        return "<h2>Simple Login Test</h2><form action='/login' method='post'><input name='username' placeholder='Username'><input name='password' type='password' placeholder='Password'><button type='submit'>Login</button></form>";
     }
     
     @GetMapping("/login")
