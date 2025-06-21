@@ -8,25 +8,14 @@ import org.springframework.security.crypto.password.PasswordEncoder;
 import org.springframework.security.web.SecurityFilterChain;
 
 @Configuration
-@EnableWebSecurity
+// @EnableWebSecurity
 public class SecurityConfig {
     
     @Bean
     public SecurityFilterChain filterChain(HttpSecurity http) throws Exception {
         http.csrf().disable()
             .authorizeRequests()
-                .antMatchers("/login", "/css/**", "/js/**").permitAll()
-                .antMatchers("/delete/**").hasRole("ADMIN")
-                .anyRequest().authenticated()
-            .and()
-            .formLogin()
-                .loginPage("/login")
-                .defaultSuccessUrl("/", true)
-                .permitAll()
-            .and()
-            .logout()
-                .logoutSuccessUrl("/login?logout")
-                .permitAll();
+                .anyRequest().permitAll();
         
         return http.build();
     }
