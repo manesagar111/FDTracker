@@ -50,7 +50,7 @@ public class FdController {
     @GetMapping("/add")
     @ResponseBody
     public String add(Model model) {
-        return "<style>body{font-family:Arial;margin:20px}input{padding:8px;margin:5px;width:200px}button{padding:10px;background:#007bff;color:white;border:none}</style><h1>Add Fixed Deposit</h1><form action='/save' method='post'>" +
+        return "<h1>Add Fixed Deposit</h1><form action='/save' method='post'>" +
                "<p>Person Name: <input name='personName' required></p>" +
                "<p>Bank Name: <input name='bankName' required></p>" +
                "<p>Account Number: <input name='accountNumber' required></p>" +
