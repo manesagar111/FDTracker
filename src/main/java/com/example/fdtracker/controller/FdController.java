@@ -1,5 +1,6 @@
 package com.example.fdtracker.controller;
 
+import com.example.fdtracker.config.SchedulerConfig;
 import com.example.fdtracker.model.FixedDeposit;
 import com.example.fdtracker.service.FixedDepositService;
 import com.example.fdtracker.service.ReportService;
@@ -24,6 +25,9 @@ public class FdController {
     @Autowired
     private ReportService reportService;
     
+    @Autowired
+    private SchedulerConfig schedulerConfig;
+    
     @GetMapping("/")
     public String dashboard(Model model) {
         return "redirect:/home";
@@ -38,33 +42,67 @@ public class FdController {
     @GetMapping("/records")
     @ResponseBody
     public String records(Model model) {
+        schedulerConfig.updateLastActivity();
         List<FixedDeposit> fixedDeposits = service.findAll();
-        StringBuilder html = new StringBuilder("<h1>Fixed Deposit Records</h1><table border='1'><tr><th>Bank</th><th>Invested Amount</th><th>Return Amount</th><th>From Date</th><th>To Date</th><th>Actions</th></tr>");
+        StringBuilder html = new StringBuilder("<!DOCTYPE html><html><head><title>FD Records</title>" +
+               "<link href='https://cdn.jsdelivr.net/npm/bootstrap@5.1.3/dist/css/bootstrap.min.css' rel='stylesheet'>" +
+               "</head><body class='bg-light'><div class='container mt-4'>" +
+               "<div class='d-flex justify-content-between align-items-center mb-4'>" +
+               "<h2 class='text-primary'>Fixed Deposit Records</h2>" +
+               "<div><a href='/add' class='btn btn-success me-2'>Add New FD</a>" +
+               "<a href='/home' class='btn btn-secondary'>Home</a></div></div>" +
+               "<div class='card shadow'><div class='card-body'>" +
+               "<div class='table-responsive'><table class='table table-striped table-hover'>" +
+               "<thead class='table-dark'><tr><th>Person</th><th>Bank</th><th>Invested Amount</th><th>Return Amount</th><th>From Date</th><th>To Date</th><th>Actions</th></tr></thead><tbody>");
         for(FixedDeposit fd : fixedDeposits) {
-            html.append("<tr><td>").append(fd.getBankName()).append("</td><td>").append(fd.getInvestedAmount()).append("</td><td>").append(fd.getReturnAmount()).append("</td><td>").append(fd.getFromDate()).append("</td><td>").append(fd.getToDate()).append("</td><td><a href='/edit/").append(fd.getId()).append("'>Edit</a> | <a href='/delete/").append(fd.getId()).append("'>Delete</a></td></tr>");
+            html.append("<tr><td>").append(fd.getPersonName()).append("</td><td>").append(fd.getBankName()).append("</td><td>₹").append(fd.getInvestedAmount()).append("</td><td>₹").append(fd.getReturnAmount()).append("</td><td>").append(fd.getFromDate()).append("</td><td>").append(fd.getToDate()).append("</td><td>" +
+                    "<a href='/edit/").append(fd.getId()).append("' class='btn btn-sm btn-warning me-1'>Edit</a>" +
+                    "<a href='/delete/").append(fd.getId()).append("' class='btn btn-sm btn-danger' onclick='return confirm(\"Are you sure?\")''>Delete</a></td></tr>");
         }
-        html.append("</table><p><a href='/add'>Add New FD</a> | <a href='/home'>Home</a></p>");
+        html.append("</tbody></table></div></div></div></div></body></html>");
         return html.toString();
     }
     
     @GetMapping("/add")
     @ResponseBody
     public String add(Model model) {
-        return "<h1>Add Fixed Deposit</h1><form action='/save' method='post'>" +
-               "<p>Person Name: <input name='personName' required></p>" +
-               "<p>Bank Name: <input name='bankName' required></p>" +
-               "<p>Account Number: <input name='accountNumber' required></p>" +
-               "<p>Invested Amount: <input name='investedAmount' type='number' step='0.01' required></p>" +
-               "<p>Return Amount: <input name='returnAmount' type='number' step='0.01' required></p>" +
-               "<p>From Date: <input name='fromDate' type='date' required></p>" +
-               "<p>To Date: <input name='toDate' type='date' required></p>" +
-               "<p>Description: <input name='description'></p>" +
-               "<p><button type='submit'>Save</button> <a href='/records'>Cancel</a></p>" +
-               "</form>";
+        schedulerConfig.updateLastActivity();
+        return "<!DOCTYPE html><html><head><title>Add FD</title>" +
+               "<link href='https://cdn.jsdelivr.net/npm/bootstrap@5.1.3/dist/css/bootstrap.min.css' rel='stylesheet'>" +
+               "</head><body class='bg-light'><div class='container mt-4'>" +
+               "<div class='row justify-content-center'><div class='col-md-8'>" +
+               "<div class='card shadow'><div class='card-header bg-success text-white'>" +
+               "<h3 class='mb-0'>Add Fixed Deposit</h3></div><div class='card-body'>" +
+               "<form action='/save' method='post'>" +
+               "<div class='row'><div class='col-md-6 mb-3'>" +
+               "<label class='form-label'>Person Name</label>" +
+               "<input name='personName' class='form-control' required></div>" +
+               "<div class='col-md-6 mb-3'><label class='form-label'>Bank Name</label>" +
+               "<input name='bankName' class='form-control' required></div></div>" +
+               "<div class='row'><div class='col-md-6 mb-3'>" +
+               "<label class='form-label'>Account Number</label>" +
+               "<input name='accountNumber' class='form-control' required></div>" +
+               "<div class='col-md-6 mb-3'><label class='form-label'>Description</label>" +
+               "<input name='description' class='form-control'></div></div>" +
+               "<div class='row'><div class='col-md-6 mb-3'>" +
+               "<label class='form-label'>Invested Amount (₹)</label>" +
+               "<input name='investedAmount' type='number' step='0.01' class='form-control' required></div>" +
+               "<div class='col-md-6 mb-3'><label class='form-label'>Return Amount (₹)</label>" +
+               "<input name='returnAmount' type='number' step='0.01' class='form-control' required></div></div>" +
+               "<div class='row'><div class='col-md-6 mb-3'>" +
+               "<label class='form-label'>From Date</label>" +
+               "<input name='fromDate' type='date' class='form-control' required></div>" +
+               "<div class='col-md-6 mb-3'><label class='form-label'>To Date</label>" +
+               "<input name='toDate' type='date' class='form-control' required></div></div>" +
+               "<div class='d-grid gap-2 d-md-flex justify-content-md-end'>" +
+               "<button type='submit' class='btn btn-success me-2'>Save FD</button>" +
+               "<a href='/records' class='btn btn-secondary'>Cancel</a></div>" +
+               "</form></div></div></div></div></div></body></html>";
     }
     
     @PostMapping("/save")
     public String save(@ModelAttribute FixedDeposit fixedDeposit) {
+        schedulerConfig.updateLastActivity();
         service.save(fixedDeposit);
         return "redirect:/records";
     }
